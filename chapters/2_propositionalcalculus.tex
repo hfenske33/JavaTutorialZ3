@@ -1,0 +1,102 @@
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  stepnumber=1,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  %numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+
+\chapter{Propositional Calculus}
+
+
+\section{Example 3 -Transitive Relation}
+\begin{lstlisting}[frame=single]
+HashMap<String, String> cfg = new HashMap<String, String>();
+cfg.put("proof", "true");
+Context ctx = new Context(cfg);
+
+IntExpr x = (IntExpr) ctx.mkConst("x", ctx.getIntSort());
+IntExpr y = (IntExpr) ctx.mkConst("y", ctx.getIntSort());
+IntExpr z = (IntExpr) ctx.mkConst("z", ctx.getIntSort());
+		
+BoolExpr b1 = (ctx.mkEq(x, y));
+BoolExpr b2 = (ctx.mkEq(y, z));
+BoolExpr b3 = (ctx.mkEq(x, y));
+BoolExpr bx1 = ctx.mkImplies((ctx.mkAnd(b1, b2)), b3);
+BoolExpr bx2 = ctx.mkImplies((ctx.mkAnd(b1, b2)), ctx.mkNot(b3));
+		
+Solver s = ctx.mkSolver();
+if (s.check() == Status.SATISFIABLE) {
+	System.out.print(bx1);
+	System.out.println(s.getModel().evaluate(bx1, true));
+	System.out.print(bx2);
+	System.out.println(s.getModel().evaluate(bx2, true));
+} else {
+	System.out.println(s + " is not solvable");
+}
+
+ctx.close();
+\end{lstlisting}
+
+
+\section{Example 4 - Quantifiers I}
+
+
+\section{Example 5 - Quantifiers II - UNSATISFIABLE?}
+\begin{lstlisting}[frame=single]
+HashMap<String, String> cfg = new HashMap<String, String>();
+cfg.put("proof", "true");
+Context ctx = new Context(cfg);
+
+Sort[] sorts = new Sort[2];
+sorts[0] = (ctx.getIntSort());
+sorts[1] = (ctx.getIntSort());
+
+Symbol[] names = new Symbol[2];
+names[0] = ctx.mkSymbol("x");
+names[1] = ctx.mkSymbol("y");
+		
+IntExpr[] vars = new IntExpr[2];
+vars[0] = (IntExpr) ctx.mkBound(0, sorts[0]);
+		
+IntExpr x = (IntExpr) ctx.mkConst("x", ctx.getIntSort());
+IntExpr y = (IntExpr) ctx.mkConst("y", ctx.getIntSort());
+		
+// x + y >= 12
+BoolExpr b1 = ctx.mkGe(ctx.mkAdd(x, y), ctx.mkInt(12));
+// x <= 6
+BoolExpr b2 = ctx.mkLe(x, ctx.mkInt(6));
+// y < 7
+BoolExpr b3 = ctx.mkLt(y, ctx.mkInt(4));
+// y != x
+BoolExpr b4 = ctx.mkDistinct(x, y);
+// b1 && b2 && b3 && b4
+BoolExpr bx = ctx.mkAnd(b1, b2, b3, b4);		
+BoolExpr exForAll = ctx.mkForall(sorts, names, bx, 1, null, null, null, null);
+		
+System.out.println("Quantifier X Y: " + exForAll.toString());
+Solver s = ctx.mkSolver();
+s.add(exForAll);
+Status status = s.check();
+System.out.println(status);
+
+ctx.close();
+\end{lstlisting}
+
+\section{Example 6 - Quantifiers III}

@@ -1,0 +1,128 @@
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  stepnumber=1,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  %numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+
+\chapter{Getting Started}
+
+For the following examples here is the main-structure of the use of the solver: Create a context...Do something...Close the context.\\
+\begin{lstlisting}[frame=single]
+HashMap<String, String> cfg = new HashMap<String, String>();
+cfg.put("proof", "true");
+Context ctx = new Context(cfg);
+//some code
+ctx.close();
+\end{lstlisting}
+
+
+\section{Example 1 - Add two integers}
+Let's start with a simple formula. We just want to express x + y with z3.
+\begin{lstlisting}[frame=single]
+HashMap<String, String> cfg = new HashMap<String, String>();
+cfg.put("proof", "true");
+Context ctx = new Context(cfg);
+
+IntExpr x = ctx.mkIntConst("x");
+IntExpr y = ctx.mkIntConst("y");
+Expr e = ctx.mkAdd(x, y);
+System.out.println(e);
+
+ctx.close();
+\end{lstlisting}
+
+The output is (+ x y). 
+That's not very exciting. 
+The output is just what we already knew. Let's go one step further and add two numbers.
+Now we define two numbers (three, five) and add them together.
+
+\begin{lstlisting}[frame=single]
+HashMap<String, String> cfg = new HashMap<String, String>();
+cfg.put("proof", "true");
+Context ctx = new Context(cfg);
+
+IntExpr three = ctx.mkInt(3);
+IntExpr five = ctx.mkInt(5);
+Expr e = ctx.mkAdd(three, five);
+Solver s = ctx.mkSolver();
+		
+if(s.check() == Status.SATISFIABLE) {
+	System.out.println(s.getModel().evaluate(e, true));
+}else {
+	System.out.println(s + " is not solvable");
+}
+
+ctx.close();
+\end{lstlisting}
+
+The output is of course 8.
+s.check() is not really necessary in this case, but you should not miss it if you want to do an evaluation. 
+s.check() only asks if the calculus is solvable. 
+This question makes more sense in the next example...
+
+
+\section{Example 2 - Add two integers with assertions}
+
+Let's assume that we want to add two numbers x and y, with a destricted domain:
+\begin{enumerate}
+\item x < 3	
+\item y > 5	
+\item x + 2*y = 14 
+\end{enumerate}
+
+\begin{lstlisting}[frame=single]
+HashMap<String, String> cfg = new HashMap<String, String>();
+cfg.put("proof", "true");
+Context ctx = new Context(cfg);
+
+IntExpr x = ctx.mkIntConst("x");
+IntExpr y = ctx.mkIntConst("y");
+IntExpr three = ctx.mkInt(3);
+IntExpr five = ctx.mkInt(5);
+Expr e = ctx.mkAdd(x, y);
+		
+BoolExpr b1 = ctx.mkLt(x, three);
+BoolExpr b2 = ctx.mkGt(y, five);
+BoolExpr b3 = ctx.mkEq(ctx.mkAdd(x, ctx.mkMul(ctx.mkInt(2), y)), ctx.mkInt(14));
+BoolExpr bx = ctx.mkAnd(b1, b2, b3);
+		
+Solver s = ctx.mkSolver();
+s.add(bx);
+	
+if(s.check() == Status.SATISFIABLE) {
+	System.out.println(s.getModel().evaluate(e, true));
+}else {
+	System.out.println(s + " is not solvable");
+}
+
+ctx.close();
+\end{lstlisting}
+Of course you do not have to summarize the assertions in one assertion \textit{bx}. One could also write: \textit{s.add (b1); s.add (b2); s.add (b3);}\\
+Or you can put everything together and write:\\\\
+\textit{	s.add(ctx.mkAnd(ctx.mkLt(x, three), ctx.mkGt(y, five), ctx.mkEq(ctx.mkAdd\\
+(x, ctx.mkMul(ctx.mkInt(2), y)), ctx.mkInt(14))));}.\\\\
+One could add a \textit{System.out.println(s)}.
+The output looks like this:\\
+(declare-fun y () Int)\\
+(declare-fun x () Int)\\
+(assert (and (< x 3) (> y 5) (= (+ x (* 2 y)) 14)))\\
+
+

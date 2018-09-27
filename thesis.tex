@@ -1,0 +1,70 @@
+\documentclass[12pt]{report}
+
+\input{tex/lststyles}
+
+
+%*********************************************************************%
+% META                                                                %
+%*********************************************************************%
+
+
+%*********************************************************************%
+% SETUP                                                               %
+%*********************************************************************%
+
+
+% open index file
+%\ifnotdraft{\makeindex}
+
+%*********************************************************************%
+% ACRONYMS                                                            %
+%*********************************************************************%
+
+% HOWTO: \gls{IDE} for singular or \glspl{IDE} for plural with 's
+%\makeglossaries
+%\newacronym{IDE}{IDE}{Integrated Development Environment}
+%\glsaddall % use only if you have acronyms that occur only in graphics
+
+%*********************************************************************%
+% THE DOCUMENT                                                        %
+%*********************************************************************%
+
+%*********************************************************************%
+% THE DOCUMENT                                                        %
+%*********************************************************************%
+\usepackage{tabularx}
+\usepackage{paralist}
+\usepackage{color}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{blindtext}
+\usepackage{chapterbib}
+
+\begin{document}
+
+
+
+
+%\frontmatter
+\pagenumbering{roman}
+\include{tex/titlepage}
+
+
+
+%*********************************************************************%
+% CHAPTERS                                                            %
+%*********************************************************************%
+
+%\mainmatter
+\pagenumbering{arabic}
+
+%\include{chapters/intro}
+\include{chapters/1_letsStart}
+\include{chapters/2_propositionalcalculus}
+\include{chapters/x_opList}
+
+
+
+
+
+\end{document}
